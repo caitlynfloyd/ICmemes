@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+    <h1>Index Page</h1>
+
+    <form action="" method="POST" novalidate>
+        {{ form.hidden_tag() }}
+        <p>
+
+        <p>{{ form.search.label }}
+        {{ form.search(size=100) }}
+
+        {{ form.submit() }}</p>
+    </form>
+{% endblock %}
