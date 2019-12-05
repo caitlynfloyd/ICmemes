@@ -2,8 +2,16 @@
 
 {% block app_content %}
     <h1>Create a Meme Here</h1>
+        <form action="" method="POST" enctype="multipart/form-data" novalidate>
+            <div class="form-group">
+              <label>Select image</label>
+              <div class="custom-file">
+                <input type="file" class="custom-file-input" name="image" id="image">
+              </div>
+            </div>
 
-        <form action="" method="post" novalidate>
+
+
         {{ form.hidden_tag() }}
         <p>
             {{ form.name.label }}<br>

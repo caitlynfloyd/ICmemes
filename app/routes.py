@@ -27,9 +27,16 @@ def index():
 
 @app.route('/results/<search>')
 def results(search):
-    category = Category.query.filter_by(name=search).first_or_404()
+    mtc=[]
+    memes = []
+    category = Category.query.filter_by(name=search).first()
+    if category:
+        mtc = MemeToCategory.query.filter_by(category_id=category.id).all()
+    else:
+        location = Location.query.filter_by(name=search).first_or_404()
+        memes = Meme.query.filter_by(location_id=location.id).all()
 
-    return render_template('results.html', title="Results", category=category)
+    return render_template('results.html', title="Results", category=category, mtc=mtc, memes=memes)
 
 
 @app.route("/upload-image", methods=["GET", "POST"])
@@ -48,10 +55,12 @@ def upload_image():
 @app.route('/memes')
 def memes():
 
+    memes = Meme.query.all()
+
     images = os.listdir('/Users/Caitlyn/PycharmProjects/icmemes/app/static/img')
     images = ['img/' + file for file in images]
 
-    return render_template('memes.html', title="Memes", images=images)
+    return render_template('memes.html', title="Memes", images=images, memes=memes)
 
 
 @app.route('/create', methods=['GET', 'POST'])
@@ -64,6 +73,14 @@ def create():
 
     categoriesList = Category.query.all()
     form.categories.choices = [(category.id, category.name) for category in categoriesList]
+
+    if request.method == "POST":
+
+        if request.files:
+            image = request.files["image"]
+            image.save(os.path.join(app.config["IMAGE_UPLOADS"], image.filename))
+            print("image saved")
+            # return redirect(request.url)
 
     if form.validate_on_submit():
         taken = false
@@ -82,7 +99,7 @@ def create():
             if l.id == form.location.data:
                 place = l.id
 
-        newmemeentry = Meme(name=form.name.data, caption=form.caption.data, location_id=place)
+        newmemeentry = Meme(name=form.name.data, caption=form.caption.data, location_id=place, image_name="img/"+image.filename)
         db.session.add(newmemeentry)
         db.session.commit()
 
@@ -166,10 +183,22 @@ def reset_db():
     db.session.commit()
 
     # Memes
-    meme1 = Meme(id=1, name="meme1", caption="so funny", location_id=1)
+    meme1 = Meme(id=1, name="meme1", caption="so funny", location_id=3, image_name="img/icmeme1.jpg")
     db.session.add(meme1)
-    meme2 = Meme(id=2, name="meme2", caption="great picture", location_id=2)
+    meme2 = Meme(id=2, name="meme2", caption="great picture", location_id=3, image_name="img/memetest.jpg")
     db.session.add(meme2)
+    meme3 = Meme(id=3, name="meme3", caption="so cold", location_id=3, image_name="img/wintermeme.jpg")
+    db.session.add(meme3)
+    meme4 = Meme(id=4, name="meme4", caption="Wegmans is so expensive", location_id=4, image_name="img/newmeme.jpeg")
+    db.session.add(meme4)
+    meme5 = Meme(id=5, name="meme5", caption="Some teacher just need help", location_id=2, image_name="img/techmeme.jpg")
+    db.session.add(meme5)
+    meme6 = Meme(id=6, name="meme6", caption="CS majors rule", location_id=5,
+                 image_name="img/csmeme.jpg")
+    db.session.add(meme6)
+    meme7 = Meme(id=7, name="meme7", caption="Student Athletes", location_id=6,
+                 image_name="img/athletememe.jpg")
+    db.session.add(meme7)
     db.session.commit()
 
     # Location
@@ -177,6 +206,14 @@ def reset_db():
     db.session.add(location1)
     location2 = Location(id=2, name="Park School")
     db.session.add(location2)
+    location3 = Location(id=3, name="No Specific Location")
+    db.session.add(location3)
+    location4 = Location(id=4, name="Off Campus")
+    db.session.add(location4)
+    location5 = Location(id=5, name="Williams")
+    db.session.add(location5)
+    location6 = Location(id=6, name="Hill Center")
+    db.session.add(location6)
     db.session.commit()
 
     # Categories
@@ -186,15 +223,31 @@ def reset_db():
     db.session.add(category2)
     category3 = Category(id=3, name="athlete")
     db.session.add(category3)
+    category4 = Category(id=4, name="registration")
+    db.session.add(category4)
+    category5 = Category(id=5, name="computer science")
+    db.session.add(category5)
+    category6 = Category(id=6, name="winter")
+    db.session.add(category6)
     db.session.commit()
 
     # MemeToCategory
-    mtc1 = MemeToCategory(id=1, meme_id=1, category_id=1)
+    mtc1 = MemeToCategory(id=1, meme_id=1, category_id=4)
     db.session.add(mtc1)
-    mtc2 = MemeToCategory(id=2, meme_id=1, category_id=3)
+    mtc2 = MemeToCategory(id=2, meme_id=2, category_id=6)
     db.session.add(mtc2)
-    mtc3 = MemeToCategory(id=3, meme_id=2, category_id=2)
+    mtc3 = MemeToCategory(id=3, meme_id=3, category_id=6)
     db.session.add(mtc3)
+    mtc4 = MemeToCategory(id=4, meme_id=5, category_id=2)
+    db.session.add(mtc4)
+    mtc5 = MemeToCategory(id=5, meme_id=4, category_id=1)
+    db.session.add(mtc5)
+    mtc6 = MemeToCategory(id=6, meme_id=6, category_id=2)
+    db.session.add(mtc6)
+    mtc7 = MemeToCategory(id=7, meme_id=6, category_id=5)
+    db.session.add(mtc7)
+    mtc8 = MemeToCategory(id=8, meme_id=7, category_id=3)
+    db.session.add(mtc8)
     db.session.commit()
 
     return redirect('/index')

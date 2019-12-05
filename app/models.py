@@ -28,6 +28,7 @@ class Meme(db.Model):
     location_id = db.Column(db.String(64), db.ForeignKey('location.id'))
     location = db.relationship("Location", back_populates="memes")
     categories = db.relationship("MemeToCategory", back_populates="meme")
+    image_name = db.Column(db.String(164), index=True)
 
     def __repr__(self):
         return '<Meme {}>'.format(self.body)
