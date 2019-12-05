@@ -1,9 +1,10 @@
-from flask import Flask
+from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from config import Config
 from flask_login import LoginManager
 from flask_bootstrap import Bootstrap
+from flask_uploads import UploadSet, configure_uploads, IMAGES, patch_request_class
 import logging
 from logging.handlers import SMTPHandler
 from logging.handlers import RotatingFileHandler

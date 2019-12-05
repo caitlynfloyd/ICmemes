@@ -6,12 +6,14 @@ from werkzeug.urls import url_parse
 from werkzeug.utils import secure_filename
 
 from app import app, db
-from app.forms import LoginForm, RegistrationForm, NewMemeForm, PhotoForm, MemeSearchForm, SearchForm
+from app.forms import LoginForm, RegistrationForm, NewMemeForm, PhotoForm, SearchForm
 from app.models import User, Meme, Location, Category, MemeToCategory
 from flask_login import current_user, login_user, login_required, logout_user
 
+app.config["IMAGE_UPLOADS"] = "/Users/Caitlyn/PycharmProjects/icmemes/app/static/img"
 
-@app.route('/')
+
+@app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
 def index():
     form = SearchForm()
@@ -20,23 +22,6 @@ def index():
         search = form.search.data
         return redirect(url_for('results', search=search))
 
-    # categoriesList = Category.query.all()
-        # for category in categoriesList:
-        #     if search == category.name:
-        #         result = search
-        #         return render_template('results', )
-        #     else:
-        #         flash('No results found')
-        #         return render_template('index.html', title='Home', form=form)
-
-    # search = MemeSearchForm(request.form)
-
-    # categoriesList = Category.query.all()
-    # search.categories.choices = [(category.id, category.name) for category in categoriesList]
-
-    # if request.method == 'POST':
-        # return search_results(search)
-
     return render_template('index.html', title='Home', form=form)
 
 
@@ -44,43 +29,29 @@ def index():
 def results(search):
     category = Category.query.filter_by(name=search).first_or_404()
 
-    # get all memes with category
-        # def search_results(search):
-    # results = []
-    # search_string = search.data['search']
-
-    # if search.data['search'] == '':
-        # qry = db_session.query(Album)
-        # results = qry.all()
-
-    # if not results:
-        # flash('No results found')
-        # return redirect('/')
-
-    # else:
-        # display results
-        # return render_template('results.html', results=results)
     return render_template('results.html', title="Results", category=category)
+
+
+@app.route("/upload-image", methods=["GET", "POST"])
+def upload_image():
+    if request.method == "POST":
+
+        if request.files:
+            image = request.files["image"]
+            image.save(os.path.join(app.config["IMAGE_UPLOADS"], image.filename))
+            print("image saved")
+            return redirect(request.url)
+
+    return render_template("upload_image.html")
 
 
 @app.route('/memes')
 def memes():
-    UPLOAD_FOLDER = '/static/img'
 
-    form = PhotoForm()
+    images = os.listdir('/Users/Caitlyn/PycharmProjects/icmemes/app/static/img')
+    images = ['img/' + file for file in images]
 
-    if form.validate_on_submit():
-        f = form.photo.data
-        filename = secure_filename(f.filename)
-        # f.save(os.path.join(
-            # app.instance_path, 'photos', filename
-        # ))
-
-        f.save(os.path.join(app.config[UPLOAD_FOLDER], filename))
-
-        return redirect(url_for('index'))
-
-    return render_template('memes.html', title="Memes", form=form)
+    return render_template('memes.html', title="Memes", images=images)
 
 
 @app.route('/create', methods=['GET', 'POST'])
@@ -106,7 +77,6 @@ def create():
 
         flash('New Event added: {}'.format(
             form.name.data))
-        # events = ["No upcoming shows"]
 
         for l in locationList:
             if l.id == form.location.data:
@@ -135,7 +105,6 @@ def create():
                     newmtoc = MemeToCategory(id=idnum, category_id=c.id, meme_id=currentEvent)
                     db.session.add(newmtoc)
                     db.session.commit()
-
 
     return render_template('create.html', title="Create", form=form)
 

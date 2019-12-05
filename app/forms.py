@@ -49,22 +49,6 @@ class PhotoForm(FlaskForm):
     submit = SubmitField('Submit')
 
 
-images = UploadSet('images', IMAGES)
-
-
-class UploadForm(FlaskForm):
-    upload = FileField('image', validators=[
-        FileRequired(),
-        FileAllowed(images, 'Images only!')
-    ])
-
-
-class MemeSearchForm(FlaskForm):
-    choices = [('Park', 'Park'), ('PT', 'PT'), ('Circles', 'Circles'),('Dining', 'Dining')]
-    select = SelectField('Search for memes: ', choices=choices)
-    search = StringField('')
-
-
 class SearchForm(FlaskForm):
     search = StringField('Search: ', validators=[DataRequired()])
     submit = SubmitField('Submit')

@@ -5,12 +5,13 @@
 
     <img src="{{ url_for('static', filename='img/icmeme1.jpg') }}" />
 
-    <h1>File Upload</h1>
+    <hr>
+    <div>
 
-    <form method="POST" enctype="multipart/form-data">
-        <p>{{ form.photo.label }}<br>
-        {{ form.photo(size=32) }}<br></p>
+        {% for image in images %}
+        <img src="{{ url_for('static', filename= image )}}" >
+        {% endfor %}
 
-        <p>{{ form.submit() }}</p>
-    </form>
+    </div>
+
 {% endblock %}
