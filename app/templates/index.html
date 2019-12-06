@@ -1,15 +1,31 @@
 {% extends "base.html" %}
 
 {% block app_content %}
-    <h1>Index Page</h1>
 
-    <form action="" method="POST" novalidate>
-        {{ form.hidden_tag() }}
-        <p>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-2"></div>
+            <div class="col-sm-6">
+                <img src="{{ url_for('static', filename='img/icMemeLogo.png') }}" width="700"/>
+            </div>
+            <div class="col-sm-3"></div>
+        </div>
+        <br>
+        <br>
+        <div class="row">
+            <div class="col-sm-2"></div>
+            <div class="col-sm-8">
+                <form action="" method="POST" novalidate>
+                    {{ form.hidden_tag() }}
+                    <p>
 
-        <p>{{ form.search.label }}
-        {{ form.search(size=100) }}
+                    <p>{{ form.search.label }}
+                    {{ form.search(size=90) }}
 
-        {{ form.submit() }}</p>
-    </form>
+                    {{ form.submit() }}</p>
+                </form>
+            </div>
+        </div>
+    </div>
+
 {% endblock %}
