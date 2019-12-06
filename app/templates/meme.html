@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+
+    <div class="'container">
+        <div class="row">
+            <div class="col-sm-12">
+                <h1>Meme: {{ meme.name }}</h1>
+                <br>
+                <br>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-8">
+                <img src="{{ url_for('static', filename= meme.image_name )}}"  width="700">
+            </div>
+            <div class="col-sm-4">
+                <h2>Caption: {{ meme.caption }}</h2><br>
+                <h3>Location: {{ meme.location.name }}</h3><br>
+                <h3>Categories</h3>
+                {% for m in mtc %}
+                    <li>{{ m.category.name }}</li>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+
+
+{% endblock %}

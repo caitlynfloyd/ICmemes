@@ -52,6 +52,18 @@ def upload_image():
     return render_template("upload_image.html")
 
 
+@app.route('/meme/<name>')
+def meme(name):
+
+    meme=Meme.query.filter_by(name=name).first()
+    if meme is None:
+        return render_template('404.html')
+
+    mtc = MemeToCategory.query.filter_by(meme_id=meme.id).all()
+
+    return render_template('meme.html', title="Meme", meme=meme, mtc=mtc)
+
+
 @app.route('/memes')
 def memes():
 
@@ -183,20 +195,20 @@ def reset_db():
     db.session.commit()
 
     # Memes
-    meme1 = Meme(id=1, name="meme1", caption="so funny", location_id=3, image_name="img/icmeme1.jpg")
+    meme1 = Meme(id=1, name="Homer Connect hurts", caption="shouldn't stress about next semester rn", location_id=3, image_name="img/icmeme1.jpg")
     db.session.add(meme1)
-    meme2 = Meme(id=2, name="meme2", caption="great picture", location_id=3, image_name="img/memetest.jpg")
+    meme2 = Meme(id=2, name="Winter is so great", caption="Winter is my favorite season", location_id=3, image_name="img/memetest.jpg")
     db.session.add(meme2)
-    meme3 = Meme(id=3, name="meme3", caption="so cold", location_id=3, image_name="img/wintermeme.jpg")
+    meme3 = Meme(id=3, name="Game of Thrones x Ithaca", caption="Freshmen better prepare", location_id=3, image_name="img/wintermeme.jpg")
     db.session.add(meme3)
-    meme4 = Meme(id=4, name="meme4", caption="Wegmans is so expensive", location_id=4, image_name="img/newmeme.jpeg")
+    meme4 = Meme(id=4, name="Wegmans take my money", caption="Wegmans is so expensive", location_id=4, image_name="img/newmeme.jpeg")
     db.session.add(meme4)
-    meme5 = Meme(id=5, name="meme5", caption="Some teacher just need help", location_id=2, image_name="img/techmeme.jpg")
+    meme5 = Meme(id=5, name="IYKYK", caption="Some teachers just need help", location_id=2, image_name="img/techmeme.jpg")
     db.session.add(meme5)
-    meme6 = Meme(id=6, name="meme6", caption="CS majors rule", location_id=5,
+    meme6 = Meme(id=6, name="CS > Everyone else", caption="CS majors rule", location_id=5,
                  image_name="img/csmeme.jpg")
     db.session.add(meme6)
-    meme7 = Meme(id=7, name="meme7", caption="Student Athletes", location_id=6,
+    meme7 = Meme(id=7, name="Athlete problems", caption="Student Athletes", location_id=6,
                  image_name="img/athletememe.jpg")
     db.session.add(meme7)
     db.session.commit()

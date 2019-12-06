@@ -3,10 +3,19 @@
 {% block app_content %}
 
     <h1>All Memes</h1>
-    {% for meme in memes %}
-        <img src="{{ url_for('static', filename= meme.image_name )}}" >
-        <p>Caption: {{ meme.caption }}</p>
-    {% endfor %}
+    <div class="'container">
+        <div class="row">
+            {% for meme in memes %}
+                <div class="col-sm-4">
+
+                    <button type="button" onclick="window.location.href='{{ url_for('meme', name=meme.name) }}';">
+                        <img src="{{ url_for('static', filename= meme.image_name )}}" height ="250" width="300">
+                    </button>
+                    <p>Caption: {{ meme.caption }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
 
 
 

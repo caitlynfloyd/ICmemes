@@ -3,12 +3,27 @@
 {% block app_content %}
     <h1>Results</h1>
     <h2>Showing Memes For: {{ category.name }}</h2>
-    {% for m in mtc %}
-        <img src="{{ url_for('static', filename= m.meme.image_name )}}" >
-        <p>Caption: {{ m.meme.caption }}</p>
-    {% endfor %}
-    {% for me in memes %}
-        <img src="{{ url_for('static', filename= me.image_name )}}" >
-        <p>Caption: {{ me.caption }}</p>
-    {% endfor %}
+
+    <div class="'container">
+        <div class="row">
+            {% for m in mtc %}
+                <div class="col-sm-4">
+                    <img src="{{ url_for('static', filename= m.meme.image_name )}}" height ="250" width="300">
+                    <p>Caption: {{ m.meme.caption }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="'container">
+        <div class="row">
+            {% for me in memes %}
+                <div class="col-sm-4">
+                    <img src="{{ url_for('static', filename= me.image_name )}}" height ="250" width="300">
+                    <p>Caption: {{ me.caption }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
 {% endblock %}
