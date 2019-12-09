@@ -1,13 +1,14 @@
 import os
 
-from flask import render_template, flash, redirect, url_for, request
+import flask_login
+from flask import render_template, flash, redirect, url_for, request, g
 from sqlalchemy import event, false, true
 from werkzeug.urls import url_parse
 from werkzeug.utils import secure_filename
 
 from app import app, db
-from app.forms import LoginForm, RegistrationForm, NewMemeForm, PhotoForm, SearchForm
-from app.models import User, Meme, Location, Category, MemeToCategory
+from app.forms import LoginForm, RegistrationForm, NewMemeForm, PhotoForm, SearchForm, NewCommentForm
+from app.models import User, Meme, Location, Category, MemeToCategory, Comment
 from flask_login import current_user, login_user, login_required, logout_user
 
 app.config["IMAGE_UPLOADS"] = "/Users/Caitlyn/PycharmProjects/icmemes/app/static/img"
@@ -52,7 +53,7 @@ def upload_image():
     return render_template("upload_image.html")
 
 
-@app.route('/meme/<name>')
+@app.route('/meme/<name>', methods=["GET", "POST"])
 def meme(name):
 
     meme=Meme.query.filter_by(name=name).first()
@@ -61,7 +62,22 @@ def meme(name):
 
     mtc = MemeToCategory.query.filter_by(meme_id=meme.id).all()
 
-    return render_template('meme.html', title="Meme", meme=meme, mtc=mtc)
+    com = Comment.query.filter_by(meme_id=meme.id).all()
+
+    form = NewCommentForm()
+
+    print(form.errors)
+
+    if form.validate_on_submit():
+        newcomment = form.comment.data
+        c = Comment(text=newcomment, user_id=current_user.id, meme_id=meme.id)
+        db.session.add(c)
+        db.session.commit()
+        com = Comment.query.filter_by(meme_id=meme.id).all()
+
+        return render_template('meme.html', title="Meme", meme=meme, mtc=mtc, com=com, form=form)
+
+    return render_template('meme.html', title="Meme", meme=meme, mtc=mtc, com=com, form=form)
 
 
 @app.route('/memes')
@@ -260,6 +276,10 @@ def reset_db():
     db.session.add(mtc7)
     mtc8 = MemeToCategory(id=8, meme_id=7, category_id=3)
     db.session.add(mtc8)
+    db.session.commit()
+
+    comment1 = Comment(id=1, text="Awesome post", user_id=1, meme_id=1,)
+    db.session.add(comment1)
     db.session.commit()
 
     return redirect('/index')
