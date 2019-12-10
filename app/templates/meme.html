@@ -26,6 +26,36 @@
         </div>
     </div>
 
+    <div class="row">
+        <div class="col-sm-12">
+            <h2>Comments</h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            {% for c in com %}
+                    <p>{{ c.user.username }} says: {{ c.text }}</p>
+                {% endfor %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <form action="" method="post">
+                {{ form.hidden_tag() }}
+                <p>
+                    {{ form.comment.label }}<br>
+                    {{ form.comment(size=110) }}<br>
+                    {% for error in form.comment.errors %}
+                        <span style="color: red;">[{{ error }}]</span>
+                    {% endfor %}
+                </p>
+                <p>{{ form.submit() }}</p>
+            </form>
+        </div>
+    </div>
+
 
 
 {% endblock %}

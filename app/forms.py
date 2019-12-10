@@ -52,3 +52,8 @@ class PhotoForm(FlaskForm):
 class SearchForm(FlaskForm):
     search = StringField('Search: ', validators=[DataRequired()])
     submit = SubmitField('Submit')
+
+
+class NewCommentForm(FlaskForm):
+    comment = StringField('Post a new comment', validators=[DataRequired()])
+    submit = SubmitField('Submit')

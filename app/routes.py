@@ -66,14 +66,13 @@ def meme(name):
 
     form = NewCommentForm()
 
-    print(form.errors)
-
     if form.validate_on_submit():
         newcomment = form.comment.data
         c = Comment(text=newcomment, user_id=current_user.id, meme_id=meme.id)
         db.session.add(c)
         db.session.commit()
         com = Comment.query.filter_by(meme_id=meme.id).all()
+        flash("Comment added")
 
         return render_template('meme.html', title="Meme", meme=meme, mtc=mtc, com=com, form=form)
 
