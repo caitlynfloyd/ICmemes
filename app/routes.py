@@ -8,8 +8,9 @@ from werkzeug.utils import secure_filename
 
 from app import app, db
 from app.forms import LoginForm, RegistrationForm, NewMemeForm, PhotoForm, SearchForm, NewCommentForm
-from app.models import User, Meme, Location, Category, MemeToCategory, Comment
+from app.models import User, Meme, Location, Category, MemeToCategory, Comment, UserToMeme
 from flask_login import current_user, login_user, login_required, logout_user
+from igramscraper.instagram import Instagram
 
 app.config["IMAGE_UPLOADS"] = "/Users/Caitlyn/PycharmProjects/icmemes/app/static/img"
 
@@ -28,7 +29,7 @@ def index():
 
 @app.route('/results/<search>')
 def results(search):
-    mtc=[]
+    mtc = []
     memes = []
     category = Category.query.filter_by(name=search).first()
     if category:
@@ -67,14 +68,40 @@ def meme(name):
     form = NewCommentForm()
 
     if form.validate_on_submit():
+        print(form.favorite.data)
         newcomment = form.comment.data
-        c = Comment(text=newcomment, user_id=current_user.id, meme_id=meme.id)
-        db.session.add(c)
-        db.session.commit()
-        com = Comment.query.filter_by(meme_id=meme.id).all()
-        flash("Comment added")
+        if newcomment != "":
+            c = Comment(text=newcomment, user_id=current_user.id, meme_id=meme.id)
+            db.session.add(c)
+            db.session.commit()
+            com = Comment.query.filter_by(meme_id=meme.id).all()
+            form.comment.data = ""
+        flash("Changes have been recorded")
+        if form.favorite.data == "false":
+            doublecheck = UserToMeme.query.filter_by(user_id=current_user.id).all()
+            for dc in doublecheck:
+                if dc.meme.id == meme.id:
+                    print("db should")
+                    db.session.delete(dc)
+                    db.session.commit()
+            return render_template('meme.html', title="Meme", meme=meme, mtc=mtc, com=com, form=form)
+        elif form.favorite.data == "true":
+            doublecheck = UserToMeme.query.filter_by(user_id=current_user.id).all()
+            for dc in doublecheck:
+                if dc.meme.id == meme.id:
+                    return render_template('meme.html', title="Meme", meme=meme, mtc=mtc, com=com, form=form)
 
-        return render_template('meme.html', title="Meme", meme=meme, mtc=mtc, com=com, form=form)
+            u2mList = UserToMeme.query.all()
+            idnum = 0
+            for u in u2mList:
+                if u.id > idnum:
+                    idnum = u.id
+            idnum = idnum + 1
+            newfav = UserToMeme(id=idnum, meme_id=meme.id, user_id=current_user.id)
+            db.session.add(newfav)
+            db.session.commit()
+            return render_template('meme.html', title="Meme", meme=meme, mtc=mtc, com=com, form=form)
+
 
     return render_template('meme.html', title="Meme", meme=meme, mtc=mtc, com=com, form=form)
 
@@ -88,6 +115,14 @@ def memes():
     images = ['img/' + file for file in images]
 
     return render_template('memes.html', title="Memes", images=images, memes=memes)
+
+
+@app.route('/favorites')
+def favorites():
+
+    favs = UserToMeme.query.filter_by(user_id=current_user.id).all()
+
+    return render_template('favorites.html', title="Memes", favs=favs, user=current_user)
 
 
 @app.route('/create', methods=['GET', 'POST'])
@@ -149,6 +184,7 @@ def create():
                     newmtoc = MemeToCategory(id=idnum, category_id=c.id, meme_id=currentEvent)
                     db.session.add(newmtoc)
                     db.session.commit()
+        return redirect(url_for('memes'))
 
     return render_template('create.html', title="Create", form=form)
 
@@ -192,6 +228,35 @@ def register():
     return render_template('register.html', title='Register', form=form)
 
 
+@app.route('/ig_scraper')
+def ig_scraper():
+    instagram = Instagram()
+
+    instagram.with_credentials('ICmemes666', 'devandcaitlyn')
+    instagram.login()
+
+    account = instagram.get_account('ICmemes666')
+
+    # # Available fields
+    # print('Account info:')
+    # print('Id: ', account.identifier)
+    # print('Username: ', account.username)
+    # print('Full name: ', account.full_name)
+    # print('Biography: ', account.biography)
+    # print('Profile pic url: ', account.get_profile_pic_url_hd())
+    # print('External Url: ', account.external_url)
+    # print('Number of published posts: ', account.media_count)
+    # print('Number of followers: ', account.followed_by_count)
+    # print('Number of follows: ', account.follows_count)
+    # print('Is private: ', account.is_private)
+    # print('Is verified: ', account.is_verified)
+    #
+    # print(instagram.get_account('ICmemes666'))
+
+    medias = instagram.get_medias_by_user_id(account.identifier)
+    return render_template('ig_scraper.html', medias=medias, title="Instagram")
+
+
 @app.route('/reset_db')
 def reset_db():
     flash("Resetting database: deleting old data and repopulating with dummy data")
@@ -207,6 +272,15 @@ def reset_db():
     user1 = User(id=1, username="cfloyd", email="cfloyd@ithaca.edu")
     user1.set_password("a")
     db.session.add(user1)
+    user2 = User(id=2, username="memelover", email="memelover@a.com")
+    user2.set_password("a")
+    db.session.add(user2)
+    user3 = User(id=3, username="icforever", email="icalum@a.com")
+    user3.set_password("a")
+    db.session.add(user3)
+    user4 = User(id=4, username="BlueBomber", email="bluebomber@a.com")
+    user4.set_password("a")
+    db.session.add(user4)
     db.session.commit()
 
     # Memes
@@ -226,6 +300,16 @@ def reset_db():
     meme7 = Meme(id=7, name="Athlete problems", caption="Student Athletes", location_id=6,
                  image_name="img/athletememe.jpg")
     db.session.add(meme7)
+    meme8 = Meme(id=8, name="Magenta jumpsuit", caption="Set to rob T3!", location_id=7, image_name="img/robbery.png")
+    db.session.add(meme8)
+    meme9 = Meme(id=9, name="Towers", caption="The projects.", location_id=8, image_name="img/towers.png")
+    db.session.add(meme9)
+    meme10 = Meme(id=10, name="Touring Ithaca", caption="Is that Talcott?", location_id=3, image_name="img/mickey.png")
+    db.session.add(meme10)
+    meme11 = Meme(id=11, name="Bonus Bucks", caption="Bonus Bucks", location_id=3, image_name="img/bonusBucks.png")
+    db.session.add(meme11)
+    meme12 = Meme(id=12, name="Gibby", caption="too real ¯\_(ツ)_/¯", location_id=3, image_name="img/gibby.png")
+    db.session.add(meme12)
     db.session.commit()
 
     # Location
@@ -241,6 +325,10 @@ def reset_db():
     db.session.add(location5)
     location6 = Location(id=6, name="Hill Center")
     db.session.add(location6)
+    location7 = Location(id=7, name="Terraces")
+    db.session.add(location7)
+    location8 = Location(id=8, name="Towers")
+    db.session.add(location8)
     db.session.commit()
 
     # Categories
@@ -256,6 +344,8 @@ def reset_db():
     db.session.add(category5)
     category6 = Category(id=6, name="winter")
     db.session.add(category6)
+    category7 = Category(id=7, name="security")
+    db.session.add(category7)
     db.session.commit()
 
     # MemeToCategory
@@ -275,10 +365,36 @@ def reset_db():
     db.session.add(mtc7)
     mtc8 = MemeToCategory(id=8, meme_id=7, category_id=3)
     db.session.add(mtc8)
+    mtc9 = MemeToCategory(id=9, meme_id=8, category_id=7)
+    db.session.add(mtc9)
     db.session.commit()
 
     comment1 = Comment(id=1, text="Awesome post", user_id=1, meme_id=1,)
     db.session.add(comment1)
+    comment2 = Comment(id=2, text="Awesome post", user_id=2, meme_id=2, )
+    db.session.add(comment2)
+    comment3 = Comment(id=3, text="so funny :)", user_id=2, meme_id=1, )
+    db.session.add(comment3)
+    comment4 = Comment(id=4, text="wow so relatable", user_id=2, meme_id=3, )
+    db.session.add(comment4)
+    comment5 = Comment(id=5, text="wow so i feel this", user_id=2, meme_id=4, )
+    db.session.add(comment5)
+    comment6 = Comment(id=6, text="i feel this", user_id=3, meme_id=1, )
+    db.session.add(comment6)
+    comment7 = Comment(id=7, text="oof", user_id=4, meme_id=1, )
+    db.session.add(comment7)
+    comment8 = Comment(id=8, text="omg love this", user_id=4, meme_id=6, )
+    db.session.add(comment8)
     db.session.commit()
+
+    # UserToMeme
+    utm1 = UserToMeme(id=1, user_id=1, meme_id=1)
+    db.session.add(utm1)
+    utm2 = UserToMeme(id=2, user_id=1, meme_id=2)
+    db.session.add(utm2)
+    utm3 = UserToMeme(id=3, user_id=1, meme_id=3)
+    db.session.add(utm3)
+    db.session.commit()
+
 
     return redirect('/index')

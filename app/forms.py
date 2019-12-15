@@ -3,7 +3,7 @@ from flask import request
 from flask_uploads import UploadSet, IMAGES
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, DateField, DateTimeField, \
-    SelectField, SelectMultipleField
+    SelectField, SelectMultipleField, RadioField
 from wtforms.validators import DataRequired, ValidationError, Email, EqualTo
 from flask_wtf.file import FileField, FileRequired, FileAllowed
 from werkzeug.utils import secure_filename
@@ -55,5 +55,6 @@ class SearchForm(FlaskForm):
 
 
 class NewCommentForm(FlaskForm):
-    comment = StringField('Post a new comment', validators=[DataRequired()])
+    favorite = RadioField("Favorite? ", choices=[("true",'Yes, I want to favorite this meme'),('false',"No, I don't want to favorite this meme")])
+    comment = StringField('Post a new comment')
     submit = SubmitField('Submit')

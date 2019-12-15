@@ -15,6 +15,8 @@ class User(UserMixin, db.Model):
     # memes = db.relationship('Meme', back_populates="user_id")
     comments = db.relationship('Comment', backref='author', lazy='dynamic')
 
+    memes = db.relationship("UserToMeme", back_populates="user")
+
     def __repr__(self):
         return '<User {}>'.format(self.username)
 
@@ -35,6 +37,8 @@ class Meme(db.Model):
     image_name = db.Column(db.String(164), index=True)
     # user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     comments = db.relationship('Comment', back_populates="meme")
+
+    users = db.relationship("UserToMeme", back_populates="meme")
 
     def __repr__(self):
         return '<Meme {}>'.format(self.body)
@@ -69,8 +73,16 @@ class MemeToCategory(db.Model):
         return '<MemeToCategory {} {}>'.format(self.meme_id, self.category_id)
 
 
-class Comment(db.Model):
+class UserToMeme(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    meme_id = db.Column(db.Integer, db.ForeignKey('meme.id'), primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
+    meme = db.relationship("Meme", back_populates="users")
+    user = db.relationship("User", back_populates="memes")
+
+
+class Comment(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     text = db.Column(db.String(164), index=True)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+    <h1>Posts from IC Memes Instagram</h1>
+
+    {% for media in medias %}
+        <img src="{{ media.image_high_resolution_url }}"></img>
+        <br><br><br><br><br>
+    {% endfor %}
+
+
+{% endblock %}

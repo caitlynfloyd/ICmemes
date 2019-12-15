@@ -7,16 +7,12 @@
 {% endblock %}
 
 
-{% block title %}
-    {% if title %}
-        <title>{{ title }} - IC Memes</title>
-        {% else %}
+
         <title>Welcome to Ithaca College Memes</title>
-    {% endif %}
-{% endblock %}
+
 
 {% block navbar %}
-    <nav class="navbar navbar-default">
+    <nav class="navbar-default1">
         <div class="container">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
@@ -31,15 +27,18 @@
                 <ul class="nav navbar-nav">
                     {% if current_user.is_anonymous %}
                         <li><a href="{{ url_for('memes') }}">Memes</a></li>
+                        <li><a href="{{ url_for('ig_scraper') }}">Instagram</a></li>
                     {% else %}
                         <li><a href="{{ url_for('memes') }}">Memes</a></li>
                         <li><a href="{{ url_for('create') }}">Create a Meme</a></li>
+                        <li><a href="{{ url_for('ig_scraper') }}">Instagram</a></li>
                     {% endif %}
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     {% if current_user.is_anonymous %}
                         <li><a href="{{ url_for('login') }}">Login</a></li>
                     {% else %}
+                        <li><a href="{{ url_for('favorites') }}">Favorites</a></li>
                         <li><a href="{{ url_for('logout') }}">Logout</a></li>
                     {% endif %}
                 </ul>

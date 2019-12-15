@@ -5,8 +5,10 @@ body {
   color: navy;
 }
 
-nav {
 
+
+nav {
+  background-color: #F56476;
 }
 
 /*
@@ -30,6 +32,7 @@ header h1.logo:hover {
   color: #fff;
   text-decoration: none;
 }
+
 /*
  * Centering the body content
  */
@@ -44,3 +47,16 @@ header h1.logo:hover {
   margin-right: auto;
   width: 50%;
 }
+
+/* navbar */
+.navbar-default1 {
+    background-color: #E7E7E7;
+    border-color: #08547A;
+}
+
+.navbar {
+  background-image: none;
+  background-color: #6EEB83;
+}
+
+
