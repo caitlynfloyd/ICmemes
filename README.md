@@ -5,6 +5,7 @@ Key Technologies
  - Python
  - NoSQL Database
  - API integration
+ - HTML
 
 Key Features
  - Database modification
